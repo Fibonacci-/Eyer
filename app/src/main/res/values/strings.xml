@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Eyer</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="photo">Photo</string>
+    <string name="placeholderText">Lorem ipsum etc!</string>
+    <string name="zero">0</string>
+</resources>
