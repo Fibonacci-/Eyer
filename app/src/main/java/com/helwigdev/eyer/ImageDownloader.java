@@ -33,6 +33,7 @@ public class ImageDownloader<Token> extends HandlerThread {
 
 	public interface Listener<Token> {
 		void onThumbnailDownloaded(Token token, Bitmap thumbnail);
+		void onThumbnailDownloadStart(Token token, Bitmap thumbnail);
 	}
 
 	public void setListener(Listener<Token> listener) {
@@ -91,6 +92,12 @@ public class ImageDownloader<Token> extends HandlerThread {
 			if (url == null) return;
 			final Bitmap bitmap;
 			if (cache.get(url) == null) {
+				mResponseHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						mListener.onThumbnailDownloadStart(token, null);//reset image thumbnail
+					}
+				});
 				byte[] bitmapBytes = new NetworkUtilities().getUrlBytes(url);
 				bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
 				Log.i(TAG, "Bitmap created: no cache found");
@@ -116,7 +123,7 @@ public class ImageDownloader<Token> extends HandlerThread {
 	}
 
 	public void queueThumbnail(Token token, String url) {
-		//Log.i(TAG, "Got a URL: " + url);
+		Log.i(TAG, "Got a URL: " + url);
 		requestMap.put(token, url);
 
 		mHandler.obtainMessage(MESSAGE_DOWNLOAD, token).sendToTarget();

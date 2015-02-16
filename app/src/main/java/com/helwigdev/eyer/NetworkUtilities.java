@@ -17,7 +17,7 @@ public class NetworkUtilities {
 	byte[] getUrlBytes(String urlSpec) throws IOException {
 		URL url = new URL(urlSpec);
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-
+		Log.i("getUrlBytes",urlSpec + ": HTTP response is " + connection.getResponseCode());
 		try{
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			InputStream in = connection.getInputStream();

@@ -5,4 +5,9 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="blankList">
+        <item name="android:selectable">false</item>
+        <item name="android:listSelector">@android:color/transparent</item>
+    </style>
+
 </resources>
