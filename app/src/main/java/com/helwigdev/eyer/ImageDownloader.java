@@ -127,6 +127,7 @@ public class ImageDownloader<Token> extends HandlerThread {
 		requestMap.put(token, url);
 
 		mHandler.obtainMessage(MESSAGE_DOWNLOAD, token).sendToTarget();
+
 	}
 
 	public void queuePrecache(Token token, String url){

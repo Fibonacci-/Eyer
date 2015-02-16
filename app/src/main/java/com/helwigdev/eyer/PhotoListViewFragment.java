@@ -6,6 +6,7 @@ import android.graphics.drawable.PictureDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,10 +30,14 @@ import java.util.ArrayList;
  */
 public class PhotoListViewFragment extends ListFragment{
 	public static final String TAG = "PhotoListViewFragment";
+	public static final String ENDPOINT = "http://54.68.77.148/api/";
+	public static final String GET_PHOTO_JSON = "getPhotosJson.php";
+	public static final String GET_PHOTO = "/uploads/";
+
+	public static final String DIALOG_IMAGE = "image";
 
 	ImageDownloader<ImageView> mImageThread;
 	ArrayList<Post> mPosts = new ArrayList<>();
-	int buttonImageSize = 100;
 
 
 	@Override
@@ -50,6 +55,7 @@ public class PhotoListViewFragment extends ListFragment{
 			public void onThumbnailDownloaded(ImageView imageView, Bitmap thumbnail) {
 				if(isVisible()){
 					imageView.setImageBitmap(thumbnail);
+
 				}
 			}
 
@@ -84,7 +90,7 @@ public class PhotoListViewFragment extends ListFragment{
 				updateItems(posts, false);
 			}
 		});
-		jsonArrayDownloader.execute("http://54.68.77.148/api/getPhotosJson.php?latitude=40.8047555&longitude=-76.8779612&pagenum=1");
+		jsonArrayDownloader.execute(ENDPOINT + GET_PHOTO_JSON + "?latitude=40.8047555&longitude=-76.8779612&pagenum=1");
 	}
 
 	void updateItems(ArrayList<Post> posts, boolean replaceAll){
@@ -115,29 +121,74 @@ public class PhotoListViewFragment extends ListFragment{
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(final int position, View convertView, ViewGroup parent) {
 			//if view not passed, inflate one
 			if (convertView == null) {
 				convertView = getActivity().getLayoutInflater()
 						.inflate(R.layout.fragment_photo_list_view, parent, false);
 			}
 
-			TextView votes = (TextView) convertView.findViewById(R.id.tv_num_votes);
-			votes.setText(mPosts.get(position).mPoints + "");
-			ImageView imageView = (ImageView)convertView.findViewById(R.id.iv_list_view_photo);
+			final TextView votes = (TextView) convertView.findViewById(R.id.tv_num_votes);
+			int vote = mPosts.get(position).vote;
+			votes.setText(vote + "");
+			final ImageView imageView = (ImageView)convertView.findViewById(R.id.iv_list_view_photo);
+			imageView.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					FragmentManager fm = getActivity().getSupportFragmentManager();
+					if(imageView.getDrawable() != null) {
+						ImageFragment.newInstance(mPosts.get(position).getFilename()).show(fm, DIALOG_IMAGE);
+					}
+				}
+			});
+
 
 			TextView title = (TextView) convertView.findViewById(R.id.tv_image_title);
 			title.setText(mPosts.get(position).getTitle());
 
-			String url = "http://54.68.77.148/api/uploads/" + mPosts.get(position).getFilename();
+			String url = ENDPOINT + GET_PHOTO + mPosts.get(position).getFilename();
 			Log.i(TAG, url);
 
-			ImageView upvote = (ImageView) convertView.findViewById(R.id.iv_button_up);
-			ImageView downvote = (ImageView) convertView.findViewById(R.id.iv_button_down);
+			final ImageView upvote = (ImageView) convertView.findViewById(R.id.iv_button_up);
+			final ImageView downvote = (ImageView) convertView.findViewById(R.id.iv_button_down);
 
-			upvote.setImageDrawable(new BitmapDrawable(getResources(),PictureUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.upvote, buttonImageSize,buttonImageSize)));
-			downvote.setImageDrawable(new BitmapDrawable(getResources(),PictureUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.downvote, buttonImageSize,buttonImageSize)));
 
+
+			if(vote == 0) {
+				upvote.setImageResource(R.drawable.upvote_unselected);
+				downvote.setImageResource(R.drawable.downvote_unselected);
+			} else if(vote == 1){
+				upvote.setImageResource(R.drawable.upvote);
+				downvote.setImageResource(R.drawable.downvote_unselected);
+			} else {
+				upvote.setImageResource(R.drawable.upvote_unselected);
+				downvote.setImageResource(R.drawable.downvote);
+			}
+
+			upvote.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					//TODO flush this out to post.vote(1 OR -1);
+					if(mPosts.get(position).vote == 0) {
+						upvote.setImageResource(R.drawable.upvote);
+						mPosts.get(position).vote = 1;
+						votes.setText("1");
+					}
+				}
+			});
+			downvote.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					//TODO this as well
+					if(mPosts.get(position).vote == 0) {
+						downvote.setImageResource(R.drawable.downvote);
+						mPosts.get(position).vote = -1;
+						votes.setText("-1");
+					}
+				}
+			});
+
+			imageView.setImageDrawable(getResources().getDrawable(android.R.color.transparent));//reset imageview
 			mImageThread.queueThumbnail(imageView, url);
 
 			return convertView;

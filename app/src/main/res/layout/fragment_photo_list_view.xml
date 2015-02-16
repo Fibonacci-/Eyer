@@ -21,13 +21,25 @@
             android:orientation="vertical"
             android:layout_height="match_parent">
 
-            <ImageView
-                android:id="@+id/iv_list_view_photo"
-                android:scaleType="centerCrop"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:src="@drawable/sea"
-                android:contentDescription="@string/photo"
-                android:layout_height="400dp"/>
+                android:layout_height="match_parent">
+
+                <ProgressBar
+                    android:indeterminate="true"
+                    android:layout_width="50dp"
+                    android:layout_gravity="center"
+                    android:layout_height="50dp"/>
+
+                <ImageView
+                    android:id="@+id/iv_list_view_photo"
+                    android:scaleType="centerCrop"
+                    android:layout_width="match_parent"
+                    android:src="@android:color/transparent"
+                    android:contentDescription="@string/photo"
+                    android:layout_height="400dp"/>
+
+            </FrameLayout>
 
             <FrameLayout
                 android:layout_width="match_parent"
